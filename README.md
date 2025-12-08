@@ -14,6 +14,7 @@ Implémentation et outils de suivi du point de puissance maximale (MPPT) pour sy
 - Tests
 - Dépannage
 - Roadmap
+- Download prebuilt firmware
 - Licence
 
 ## Présentation
@@ -149,6 +150,78 @@ ATTENTION:
 - [ ] Interface web BLE/Wi‑Fi pour monitoring
 - [ ] Logger CSV sur SPIFFS/Flash
 - [ ] Calibration automatique ADC
+
+## Download prebuilt firmware
+
+### Automatic Builds
+Each push to the `main` branch triggers an automated build via GitHub Actions, producing ready-to-flash firmware binaries for ESP32-C6. You can download these prebuilt artifacts without needing to install ESP-IDF or compile the project yourself.
+
+### Artifacts Available
+The build workflow generates the following files:
+- **mppt.bin**: Main application binary
+- **bootloader.bin**: ESP32-C6 bootloader
+- **partition-table.bin**: Partition table configuration
+- **flasher_args.json**: Flash addresses and arguments for automated flashing
+- **FLASH_INSTRUCTIONS.txt**: Detailed flashing instructions
+
+### How to Download
+1. Navigate to the [Actions tab](https://github.com/atmani1-boop/mppt/actions) of this repository
+2. Click on the most recent **"Build ESP32-C6 Firmware"** workflow run (look for the green checkmark ✓)
+3. Scroll down to the **Artifacts** section at the bottom of the page
+4. Click on **esp32c6-firmware** to download a ZIP file containing all binaries and instructions
+5. Extract the ZIP file to a folder on your computer
+
+### Flashing the Firmware
+
+#### Option 1: Using idf.py (requires ESP-IDF)
+If you have ESP-IDF installed:
+```bash
+# Connect your ESP32-C6 board via USB
+idf.py -p /dev/ttyACM0 flash
+
+# On Windows
+idf.py -p COM3 flash
+
+# Monitor output (optional)
+idf.py -p /dev/ttyACM0 monitor
+```
+
+#### Option 2: Using esptool.py (standalone - recommended for end users)
+If you don't have ESP-IDF installed, you can use esptool.py directly:
+
+1. Install esptool:
+```bash
+pip install esptool
+```
+
+2. Flash the firmware:
+```bash
+esptool.py -p /dev/ttyACM0 -b 460800 --before default_reset --after hard_reset --chip esp32c6 write_flash --flash_mode dio --flash_size detect --flash_freq 80m 0x0 bootloader.bin 0x8000 partition-table.bin 0x10000 mppt.bin
+```
+
+Replace `/dev/ttyACM0` with your serial port:
+- **Linux**: `/dev/ttyUSB0` or `/dev/ttyACM0`
+- **macOS**: `/dev/cu.usbserial-*`
+- **Windows**: `COM3`, `COM4`, etc.
+
+3. Monitor serial output (optional):
+```bash
+python -m serial.tools.miniterm /dev/ttyACM0 115200
+```
+Press `Ctrl+]` to exit the monitor.
+
+### Troubleshooting Flash Issues
+- **Board not detected**: Install USB drivers for your ESP32-C6 board
+- **Permission denied (Linux)**: Add your user to the `dialout` group:
+  ```bash
+  sudo usermod -a -G dialout $USER
+  ```
+  Then log out and log back in.
+- **Flash failures**: Try a lower baud rate (e.g., `-b 115200`)
+- **Cannot enter download mode**: Hold the BOOT button while connecting USB
+- **Device not responding**: Press the RESET button after flashing
+
+For detailed instructions, see the **FLASH_INSTRUCTIONS.txt** file included in the downloaded artifacts.
 
 ## Licence
 Choisir et ajouter un fichier `LICENSE` (MIT recommandé).
