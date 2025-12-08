@@ -38,16 +38,6 @@ jobs:
           idf.py set-target esp32c6
           idf.py build
 
-      - name: Upload firmware artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: esp32c6-firmware
-          path: |
-            build/mppt.bin
-            build/bootloader/bootloader.bin
-            build/partition_table/partition-table.bin
-            build/flasher_args.json
-
       - name: Generate flash instructions
         run: |
           cat > FLASH_INSTRUCTIONS.txt << 'EOF'
@@ -108,8 +98,13 @@ jobs:
           https://docs.espressif.com/projects/esp-idf/en/latest/esp32c6/get-started/
           EOF
 
-      - name: Upload flash instructions
+      - name: Upload firmware artifacts
         uses: actions/upload-artifact@v4
         with:
           name: esp32c6-firmware
-          path: FLASH_INSTRUCTIONS.txt
+          path: |
+            build/mppt.bin
+            build/bootloader/bootloader.bin
+            build/partition_table/partition-table.bin
+            build/flasher_args.json
+            FLASH_INSTRUCTIONS.txt
