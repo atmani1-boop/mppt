@@ -21,7 +21,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.espressif
-          key: ${{ runner.os }}-espidf-${{ hashFiles('**/CMakeLists.txt') }}
+          key: ${{ runner.os }}-espidf-v5.2-esp32c6
           restore-keys: |
             ${{ runner.os }}-espidf-
 
