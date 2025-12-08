@@ -1,0 +1,19 @@
+menu "MPPT Configuration"
+
+config MPPT_ALGO
+    string "Algorithme MPPT (pno/inccond)"
+    default "pno"
+    help
+        Choisir l'algorithme: pno (Perturb & Observe) ou inccond (Incremental Conductance).
+
+config MPPT_SAMPLE_PERIOD_MS
+    int "Période d'échantillonnage (ms)"
+    default 20
+    range 5 1000
+
+config MPPT_DUTY_STEP
+    int "Pas de perturbation du duty (LEDC ticks)"
+    default 8
+    range 1 512
+
+endmenu
