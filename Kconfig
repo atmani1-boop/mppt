@@ -24,4 +24,42 @@ config MPPT_DUTY_MAX
     default 95
     range 50 100
 
+menu "Pas Adaptatif Logarithmique"
+
+config MPPT_ADAPTIVE_STEP
+    bool "Activer le pas adaptatif logarithmique"
+    default y
+    help
+        Active le pas adaptatif basé sur log(1+|ΔP|).
+        Converge plus vite loin du MPP, plus précis proche du MPP.
+
+config MPPT_STEP_MIN
+    int "Pas minimum (x0.001, proche MPP)"
+    default 5
+    range 1 50
+    depends on MPPT_ADAPTIVE_STEP
+    help
+        Pas minimum en millièmes (5 = 0.5%).
+        Utilisé quand ΔP est petit (proche du MPP).
+
+config MPPT_STEP_MAX
+    int "Pas maximum (x0.001, loin MPP)"
+    default 50
+    range 10 100
+    depends on MPPT_ADAPTIVE_STEP
+    help
+        Pas maximum en millièmes (50 = 5%).
+        Limite haute quand ΔP est grand.
+
+config MPPT_LOG_SCALE
+    int "Facteur d'échelle logarithmique (x0.001)"
+    default 20
+    range 1 100
+    depends on MPPT_ADAPTIVE_STEP
+    help
+        Facteur multiplicatif pour log1p(|ΔP|).
+        Plus grand = réponse plus agressive aux variations.
+
+endmenu
+
 endmenu

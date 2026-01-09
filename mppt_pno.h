@@ -5,8 +5,13 @@
 typedef struct {
     float duty_min;
     float duty_max;
-    float duty_step;
-    int   filter_n;   // moving average window
+    float duty_step;      // pas fixe (utilisé si adaptive=false)
+    int   filter_n;       // moving average window
+    // Pas adaptatif logarithmique
+    int   adaptive_step;  // 1=activer pas adaptatif, 0=pas fixe
+    float step_min;       // pas minimum (proche MPP)
+    float step_max;       // pas maximum (loin MPP)
+    float log_scale;      // facteur d'échelle log: step = min + scale*log1p(|ΔP|)
 } mppt_pno_cfg_t;
 
 typedef struct {

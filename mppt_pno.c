@@ -1,6 +1,15 @@
 #include "mppt_pno.h"
+#include <math.h>
 
 static float clampf(float x, float a, float b) { return x < a ? a : (x > b ? b : x); }
+
+// Calcule le pas adaptatif logarithmique basé sur |ΔP|
+static float calc_adaptive_step(const mppt_pno_cfg_t *cfg, float delta_p) {
+    float abs_dp = fabsf(delta_p);
+    // step = step_min + log_scale * log(1 + |ΔP|)
+    float step = cfg->step_min + cfg->log_scale * log1pf(abs_dp);
+    return clampf(step, cfg->step_min, cfg->step_max);
+}
 
 void mppt_pno_init(mppt_pno_t *s, const mppt_pno_cfg_t *cfg, float duty_init) {
     s->cfg = *cfg;
@@ -27,10 +36,19 @@ float mppt_pno_update(mppt_pno_t *s, float v, float i) {
     float delta_p = s->p_avg - s->p_prev;
     s->p_prev = s->p_avg;
 
-    if (delta_p > 0) {
-        s->duty += s->cfg.duty_step;
+    // Sélection du pas: adaptatif logarithmique ou fixe
+    float step;
+    if (s->cfg.adaptive_step) {
+        step = calc_adaptive_step(&s->cfg, delta_p);
     } else {
-        s->duty -= s->cfg.duty_step;
+        step = s->cfg.duty_step;
+    }
+
+    // P&O: ajuster duty selon la direction du gradient
+    if (delta_p > 0) {
+        s->duty += step;
+    } else {
+        s->duty -= step;
     }
     s->duty = clampf(s->duty, s->cfg.duty_min, s->cfg.duty_max);
     return s->duty;

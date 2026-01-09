@@ -71,6 +71,11 @@ static void mppt_task(void *arg) {
         .duty_max = 0.95f,
         .duty_step = 0.01f,
         .filter_n = 8,
+        // Pas adaptatif logarithmique
+        .adaptive_step = 1,       // activer
+        .step_min = 0.005f,       // 0.5% (proche MPP)
+        .step_max = 0.05f,        // 5% (loin MPP)
+        .log_scale = 0.02f,       // facteur log
     };
     mppt_pno_t pno;
     mppt_pno_init(&pno, &mcfg, 0.3f);
